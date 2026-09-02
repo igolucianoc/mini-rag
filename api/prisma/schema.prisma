@@ -39,16 +39,47 @@ enum IngestionStatus {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  email        String     @unique
+  id           String   @id @default(cuid())
+  email        String   @unique
   passwordHash String
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  documents    Document[]
-  queries      Query[]
+  documents     Document[]
+  queries       Query[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
+}
+
+// Sessão de refresh token (Etapa 04 — auth).
+//
+// Nunca armazenamos o refresh token em claro: `tokenHash` guarda o SHA-256 do
+// token bruto entregue ao cliente. A rotação emite um novo token a cada refresh
+// e marca o anterior como revogado, ligando-o ao sucessor via `replacedById`.
+//
+// `family` agrupa toda a cadeia de rotações originada de um mesmo login. Se um
+// token já rotacionado/revogado for reapresentado (reuse detection), toda a
+// família é revogada para conter o vazamento.
+model RefreshToken {
+  id           String    @id @default(cuid())
+  userId       String
+  tokenHash    String    @unique
+  family       String
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?   @unique
+  userAgent    String?
+  ip           String?
+  createdAt    DateTime  @default(now())
+
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replacedBy RefreshToken? @relation("RefreshTokenRotation", fields: [replacedById], references: [id], onDelete: SetNull)
+  replaces   RefreshToken? @relation("RefreshTokenRotation")
+
+  @@index([userId])
+  @@index([family])
+  @@map("refresh_tokens")
 }
 
 model Document {

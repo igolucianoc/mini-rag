@@ -11,11 +11,11 @@
  * O embedding é escrito via `$executeRaw` com cast `::vector`, porque a coluna
  * `embedding` é `Unsupported` no Prisma e não é acessível pelo client tipado.
  *
- * HASH DE SENHA (placeholder): a lib de hash oficial (argon2/bcrypt) é decidida na
- * Etapa 04 (auth). Para não acoplar o seed a essa decisão nem adicionar dependência
- * agora, usamos um placeholder claramente marcado. A Etapa 04 substitui este valor
- * por um hash real gerado pela mesma lib usada no login.
+ * HASH DE SENHA (Etapa 04): o usuário demo recebe um hash argon2id real, gerado
+ * em runtime pela mesma lib usada no login. Credenciais demo:
+ * demo@mini-rag.local / demo-password-123.
  */
+import * as argon2 from 'argon2';
 import { Prisma, PrismaClient } from '@prisma/client';
 import {
   fakeDeterministicEmbedding,
@@ -26,12 +26,11 @@ import { chunkText } from '../src/shared/rag/chunking/chunk-text';
 const prisma = new PrismaClient();
 
 /**
- * PLACEHOLDER de hash de senha — NÃO é um hash real e não deve ser usado para
- * autenticação. Substituído na Etapa 04 pela lib de hash oficial. Formato imita
- * um hash argon2id apenas para deixar claro o que virá.
+ * Senha demo do usuário seed. O hash é gerado em runtime com argon2id — a MESMA
+ * lib usada no login (Etapa 04) —, então o usuário demo consegue autenticar de
+ * verdade. Credenciais demo: demo@mini-rag.local / demo-password-123.
  */
-const DEMO_PASSWORD_HASH_PLACEHOLDER =
-  '$argon2id$v=19$m=65536,t=3,p=4$SEED_PLACEHOLDER_NAO_USAR$SEED_PLACEHOLDER_NAO_USAR';
+const DEMO_PASSWORD = 'demo-password-123';
 
 const DEMO_USER_EMAIL = 'demo@mini-rag.local';
 
@@ -129,10 +128,11 @@ async function seedEmbeddingForChunk(
 async function main(): Promise<void> {
   await resetDomainData();
 
+  const passwordHash = await argon2.hash(DEMO_PASSWORD, { type: argon2.argon2id });
   const user = await prisma.user.create({
     data: {
       email: DEMO_USER_EMAIL,
-      passwordHash: DEMO_PASSWORD_HASH_PLACEHOLDER,
+      passwordHash,
     },
   });
 
