@@ -1,7 +1,11 @@
-// Schema Prisma do Mini RAG.
-// Etapa 02 (bootstrap): apenas datasource + generator + habilitação do
-// pgvector. A modelagem de domínio (documentos, chunks, embeddings, usuários)
-// é da Etapa 03 e será adicionada aqui posteriormente.
+// Schema Prisma do Mini RAG (Etapa 03 — modelagem de domínio).
+//
+// pgvector: a coluna de embedding de DocumentChunk é `vector(384)` (dimensão do
+// all-MiniLM-L6-v2). O Prisma não tem tipo nativo `vector`, então usamos
+// `Unsupported("vector(384)")?`. Colunas Unsupported NÃO são lidas nem gravadas
+// pelo client tipado: toda escrita/leitura de embedding é feita via
+// `$executeRaw`/`$queryRaw` (ver ADR 0001). A migration inicial habilita a
+// extensão e cria a coluna + índice de similaridade (cosine).
 
 generator client {
   provider        = "prisma-client-js"
@@ -14,14 +18,124 @@ datasource db {
   extensions = [vector]
 }
 
-// Model técnico mínimo. `prisma generate` exige ao menos um model para emitir
-// um client tipado; sem ele o build falha com "The schema does not contain any
-// models". Este model não representa domínio — serve só para o bootstrap ter um
-// client válido e será mantido/removido conforme a modelagem da Etapa 03.
-model AppMetadata {
-  id    String @id @default(cuid())
-  key   String @unique
-  value String
+enum DocumentSourceType {
+  MARKDOWN
+  TXT
+  PDF
+}
 
-  @@map("app_metadata")
+enum DocumentStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum IngestionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  documents    Document[]
+  queries      Query[]
+
+  @@map("users")
+}
+
+model Document {
+  id               String             @id @default(cuid())
+  userId           String
+  title            String
+  sourceType       DocumentSourceType
+  originalFilename String
+  mimeType         String
+  sizeBytes        Int
+  status           DocumentStatus     @default(PENDING)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks        DocumentChunk[]
+  ingestionRuns IngestionRun[]
+
+  @@index([userId])
+  @@map("documents")
+}
+
+model DocumentChunk {
+  id         String @id @default(cuid())
+  documentId String
+  chunkIndex Int
+  content    String
+  tokenCount Int
+  metadata   Json   @default("{}")
+
+  // Embedding vetorial (pgvector). Unsupported => acessado só via SQL bruto.
+  // A migration cria a coluna `vector(384)` e o índice de similaridade.
+  embedding Unsupported("vector(384)")?
+
+  document  Document   @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  citations Citation[]
+
+  @@unique([documentId, chunkIndex])
+  @@index([documentId])
+  @@map("document_chunks")
+}
+
+model IngestionRun {
+  id         String          @id @default(cuid())
+  documentId String
+  status     IngestionStatus @default(PENDING)
+  startedAt  DateTime        @default(now())
+  finishedAt DateTime?
+  error      String?
+  chunkCount Int             @default(0)
+  stats      Json            @default("{}")
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("ingestion_runs")
+}
+
+model Query {
+  id                    String   @id @default(cuid())
+  userId                String
+  question              String
+  answer                String?
+  hadSufficientEvidence Boolean  @default(false)
+  modelId               String?
+  latencyMs             Int?
+  createdAt             DateTime @default(now())
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  citations Citation[]
+
+  @@index([userId])
+  @@map("queries")
+}
+
+model Citation {
+  id              String @id @default(cuid())
+  queryId         String
+  documentChunkId String
+  rank            Int
+  score           Float
+  snippet         String
+
+  query         Query         @relation(fields: [queryId], references: [id], onDelete: Cascade)
+  documentChunk DocumentChunk @relation(fields: [documentChunkId], references: [id], onDelete: Cascade)
+
+  @@index([queryId])
+  @@index([documentChunkId])
+  @@map("citations")
 }
