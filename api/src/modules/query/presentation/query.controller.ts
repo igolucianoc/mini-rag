@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -140,6 +141,17 @@ export class QueryController {
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<QueryListItem[]> {
     return this.historyService.listForUser(user.id);
+  }
+
+  /**
+   * Limpa TODO o histórico de perguntas do usuário autenticado. Delete-all
+   * escopado por `userId`; as citações somem por cascade. Idempotente (204
+   * mesmo que o histórico já esteja vazio).
+   */
+  @Delete()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async clear(@CurrentUser() user: AuthenticatedUser): Promise<void> {
+    await this.historyService.deleteAllForUser(user.id);
   }
 
   @Get(':id')

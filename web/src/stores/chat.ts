@@ -35,6 +35,7 @@ export const useChatStore = defineStore('chat', () => {
   const history = ref<QueryListItem[]>([]);
   const historyLoading = ref(false);
   const historyError = ref<string | null>(null);
+  const clearingHistory = ref(false);
   const detail = ref<QueryDetail | null>(null);
   const detailLoading = ref(false);
   const detailError = ref<string | null>(null);
@@ -159,6 +160,26 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  /**
+   * Apaga todo o histórico do usuário. Em sucesso, zera a lista e o detalhe
+   * localmente. Retorna true/false para a view reagir (ex.: fechar confirmação).
+   */
+  async function clearHistory(): Promise<boolean> {
+    clearingHistory.value = true;
+    historyError.value = null;
+    try {
+      await queriesApi.deleteAllQueries();
+      history.value = [];
+      detail.value = null;
+      return true;
+    } catch (err) {
+      historyError.value = toMessage(err);
+      return false;
+    } finally {
+      clearingHistory.value = false;
+    }
+  }
+
   return {
     phase,
     question,
@@ -172,6 +193,7 @@ export const useChatStore = defineStore('chat', () => {
     history,
     historyLoading,
     historyError,
+    clearingHistory,
     detail,
     detailLoading,
     detailError,
@@ -181,6 +203,7 @@ export const useChatStore = defineStore('chat', () => {
     reset,
     loadHistory,
     loadDetail,
+    clearHistory,
   };
 });
 

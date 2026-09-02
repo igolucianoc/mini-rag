@@ -29,6 +29,11 @@ export function getQuery(id: string): Promise<QueryDetail> {
   return apiRequest<QueryDetail>(`/queries/${id}`);
 }
 
+/** Apaga todo o histórico de perguntas do usuário (DELETE /api/queries). */
+export function deleteAllQueries(): Promise<void> {
+  return apiRequest<void>('/queries', { method: 'DELETE' });
+}
+
 /** Monta a query string do endpoint de streaming a partir do request. */
 export function buildStreamQuery(request: AskRequest): string {
   const params = new URLSearchParams();

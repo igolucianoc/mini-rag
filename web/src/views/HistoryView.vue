@@ -12,18 +12,21 @@ import BaseButton from '@/components/BaseButton.vue';
 import StateMessage from '@/components/StateMessage.vue';
 import LoadingSkeleton from '@/components/LoadingSkeleton.vue';
 import CitationList from '@/components/CitationList.vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
 
 const chatStore = useChatStore();
 const {
   history,
   historyLoading,
   historyError,
+  clearingHistory,
   detail,
   detailLoading,
   detailError,
 } = storeToRefs(chatStore);
 
 const selectedId = ref<string | null>(null);
+const confirmClearOpen = ref(false);
 
 onMounted(() => {
   void chatStore.loadHistory();
@@ -34,6 +37,29 @@ async function onSelect(id: string): Promise<void> {
   await chatStore.loadDetail(id);
 }
 
+/** Abre o diálogo de confirmação da limpeza (ação destrutiva e irreversível). */
+function openClearConfirm(): void {
+  confirmClearOpen.value = true;
+}
+
+/** Cancela a limpeza; só fecha o diálogo. */
+function cancelClear(): void {
+  confirmClearOpen.value = false;
+}
+
+/**
+ * Confirma a limpeza do histórico. Em sucesso, a store zera lista/detalhe; aqui
+ * limpamos a seleção local e fechamos o diálogo. Em erro, o diálogo fecha e a
+ * mensagem de erro aparece na tela (historyError).
+ */
+async function confirmClear(): Promise<void> {
+  const ok = await chatStore.clearHistory();
+  if (ok) {
+    selectedId.value = null;
+  }
+  confirmClearOpen.value = false;
+}
+
 function formatDate(iso: string): string {
   const date = new Date(iso);
   return Number.isNaN(date.getTime()) ? iso : date.toLocaleString('pt-BR');
@@ -42,8 +68,20 @@ function formatDate(iso: string): string {
 
 <template>
   <AppShell>
-    <h1 class="title">Histórico</h1>
-    <p class="subtitle">Suas perguntas anteriores e as respostas geradas.</p>
+    <div class="header">
+      <div>
+        <h1 class="title">Histórico</h1>
+        <p class="subtitle">Suas perguntas anteriores e as respostas geradas.</p>
+      </div>
+      <BaseButton
+        v-if="history.length > 0"
+        variant="ghost"
+        :disabled="clearingHistory"
+        @click="openClearConfirm"
+      >
+        {{ clearingHistory ? 'Limpando…' : 'Limpar histórico' }}
+      </BaseButton>
+    </div>
 
     <LoadingSkeleton v-if="historyLoading" :lines="4" label="Carregando histórico…" />
 
@@ -106,6 +144,17 @@ function formatDate(iso: string): string {
         <p v-else class="detail__hint">Selecione uma pergunta para ver a resposta.</p>
       </section>
     </div>
+
+    <ConfirmDialog
+      :open="confirmClearOpen"
+      title="Limpar histórico"
+      message="Apagar todo o histórico de perguntas? Esta ação não pode ser desfeita."
+      confirm-label="Limpar tudo"
+      loading-label="Limpando…"
+      :loading="clearingHistory"
+      @confirm="confirmClear"
+      @cancel="cancelClear"
+    />
   </AppShell>
 </template>
 
@@ -119,7 +168,15 @@ function formatDate(iso: string): string {
 
 .subtitle {
   color: var(--color-pencil-gray);
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--spacing-16);
   margin-bottom: var(--spacing-24);
+  flex-wrap: wrap;
 }
 
 .layout {

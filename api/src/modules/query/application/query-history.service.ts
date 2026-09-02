@@ -89,4 +89,15 @@ export class QueryHistoryService {
       })),
     };
   }
+
+  /**
+   * Apaga TODO o histórico de perguntas do usuário. Escopado por `userId`
+   * (nunca toca em queries de outro usuário). As `Citation` associadas somem por
+   * cascade (onDelete: Cascade no schema). Idempotente: histórico já vazio é
+   * sucesso, não erro. Retorna a quantidade de perguntas removidas.
+   */
+  async deleteAllForUser(userId: string): Promise<number> {
+    const result = await this.prisma.query.deleteMany({ where: { userId } });
+    return result.count;
+  }
 }
