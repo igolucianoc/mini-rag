@@ -2,13 +2,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   EMBEDDING_PROVIDER,
   type EmbeddingProvider,
-} from '@/shared/rag/ports/embedding-provider.port';
+} from '@/core/rag/ports/embedding-provider.port';
 import {
   DEFAULT_TOP_K,
   VECTOR_STORE,
   type VectorStore,
-} from '@/shared/rag/ports/vector-store.port';
-import type { RetrievalResult } from '@/shared/rag/domain/rag-types';
+} from '@/core/rag/ports/vector-store.port';
+import type { RetrievalResult } from '@/core/rag/domain/rag-types';
 
 /** Limiar de similaridade padrão para considerar um chunk como evidência. */
 export const DEFAULT_SIMILARITY_THRESHOLD = 0.3;

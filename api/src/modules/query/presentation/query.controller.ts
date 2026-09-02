@@ -14,14 +14,14 @@ import {
 } from '@nestjs/common';
 import type { MessageEvent } from '@nestjs/common';
 import { from, map, type Observable } from 'rxjs';
-import { ZodValidationPipe } from '@/shared/validation/zod-validation.pipe';
-import { JwtAccessGuard } from '@/modules/auth/guards/jwt-access.guard';
-import { CurrentUser } from '@/modules/auth/guards/current-user.decorator';
-import type { AuthenticatedUser } from '@/modules/auth/guards/current-user.decorator';
-import type { RagAnswer } from '@/shared/rag/domain/rag-types';
+import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation.pipe';
+import { JwtAccessGuard } from '@/modules/auth/presentation/guards/jwt-access.guard';
+import { CurrentUser } from '@/modules/auth/presentation/guards/current-user.decorator';
+import type { AuthenticatedUser } from '@/modules/auth/presentation/guards/current-user.decorator';
+import type { RagAnswer } from '@/core/rag/domain/rag-types';
 import { RagService } from '../application/rag.service';
 import { RagStreamService } from '../application/rag-stream.service';
-import type { RagStreamEvent } from '../application/rag-stream.events';
+import type { RagStreamEvent } from '../domain/rag-stream.events';
 import {
   QueryHistoryService,
   type QueryDetail,
@@ -33,7 +33,7 @@ import {
   queryIdParamSchema,
   type AskQuestionBody,
   type QueryIdParam,
-} from '../schemas/query.schema';
+} from './schemas/query.schema';
 
 /** Resposta do POST de pergunta: RagAnswer + metadados. */
 interface AskResponse {

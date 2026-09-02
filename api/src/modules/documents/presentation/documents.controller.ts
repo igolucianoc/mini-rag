@@ -13,10 +13,10 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ZodValidationPipe } from '@/shared/validation/zod-validation.pipe';
-import { JwtAccessGuard } from '@/modules/auth/guards/jwt-access.guard';
-import { CurrentUser } from '@/modules/auth/guards/current-user.decorator';
-import type { AuthenticatedUser } from '@/modules/auth/guards/current-user.decorator';
+import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation.pipe';
+import { JwtAccessGuard } from '@/modules/auth/presentation/guards/jwt-access.guard';
+import { CurrentUser } from '@/modules/auth/presentation/guards/current-user.decorator';
+import type { AuthenticatedUser } from '@/modules/auth/presentation/guards/current-user.decorator';
 import { IngestionService } from '../application/ingestion.service';
 import type { IngestionResult } from '../application/ingestion.service';
 import {
@@ -30,7 +30,7 @@ import {
   uploadDocumentBodySchema,
   type DocumentIdParam,
   type UploadDocumentBody,
-} from '../schemas/document.schema';
+} from './schemas/document.schema';
 
 /** Resposta do upload: o run de ingestão + resumo. */
 interface UploadResponse {

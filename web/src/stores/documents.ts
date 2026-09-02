@@ -4,8 +4,8 @@
  */
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import * as documentsApi from '@/api/documents';
-import { ApiError } from '@/api/client';
+import * as documentsApi from '@/services/documents';
+import { ApiError } from '@/services/client';
 import type { DocumentListItem, UploadResponse } from '@/types/api';
 
 export const useDocumentsStore = defineStore('documents', () => {

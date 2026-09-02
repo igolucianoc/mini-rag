@@ -12,7 +12,7 @@ vi.mock('vue-router', () => ({
 // Controla os eventos emitidos pelo streaming em cada teste.
 const streamScript = { events: [] as RagStreamEvent[] };
 
-vi.mock('@/api/queries', () => ({
+vi.mock('@/services/queries', () => ({
   StreamTransportError: class extends Error {},
   streamQuery: vi.fn(
     (_request: AskRequest, onEvent: (event: RagStreamEvent) => void): Promise<void> => {

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
-import { apiRequest } from '@/api/client';
+import { apiRequest } from '@/services/client';
 
 /** Cria um Response JSON simulado com o status desejado. */
 function jsonResponse(status: number, body: unknown): Response {

@@ -13,8 +13,8 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { CookieOptions, Request, Response } from 'express';
-import type { Env } from '@/config/env.schema';
-import { ZodValidationPipe } from '@/shared/validation/zod-validation.pipe';
+import type { Env } from '@/core/config/env.schema';
+import { ZodValidationPipe } from '@/infra/http/pipes/zod-validation.pipe';
 import { AuthService } from '../application/auth.service';
 import type { AuthTokens, SessionContext } from '../application/auth.service';
 import {
@@ -22,10 +22,10 @@ import {
   registerSchema,
   type LoginInput,
   type RegisterInput,
-} from '../schemas/auth.schema';
-import { JwtAccessGuard } from '../guards/jwt-access.guard';
-import { CurrentUser } from '../guards/current-user.decorator';
-import type { AuthenticatedUser } from '../guards/current-user.decorator';
+} from './schemas/auth.schema';
+import { JwtAccessGuard } from './guards/jwt-access.guard';
+import { CurrentUser } from './guards/current-user.decorator';
+import type { AuthenticatedUser } from './guards/current-user.decorator';
 
 /** Nome do cookie que carrega o refresh token. */
 const REFRESH_COOKIE = 'refresh_token';

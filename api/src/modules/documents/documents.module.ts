@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '@/modules/auth/auth.module';
-import { RagProvidersModule } from '@/shared/rag/rag-providers.module';
+import { RagProvidersModule } from '@/infra/rag/rag-providers.module';
 import { DocumentsController } from './presentation/documents.controller';
 import { IngestionService } from './application/ingestion.service';
 import { DocumentsService } from './application/documents.service';
 import {
   DOCUMENT_PARSERS,
   ParserRegistry,
-} from './infrastructure/parsers/parser-registry';
-import { MarkdownParser } from './infrastructure/parsers/markdown.parser';
-import { TxtParser } from './infrastructure/parsers/txt.parser';
-import { PdfParser } from './infrastructure/parsers/pdf.parser';
+} from './persistence/parsers/parser-registry';
+import { MarkdownParser } from './persistence/parsers/markdown.parser';
+import { TxtParser } from './persistence/parsers/txt.parser';
+import { PdfParser } from './persistence/parsers/pdf.parser';
 
 /**
  * Slice de documentos (Etapa 05 — ingestão).

@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import type { EmbeddedRagChunk } from '@/shared/rag/domain/rag-types';
-import { isSufficientRetrieval } from '@/shared/rag/domain/rag-types';
-import { FakeEmbeddingProvider } from '@/modules/documents/infrastructure/embedding/fake-embedding.provider';
-import { InMemoryVectorStore } from '@/modules/documents/infrastructure/vector-store/in-memory-vector.store';
-import type { SimilarityFilters, VectorStore } from '@/shared/rag/ports/vector-store.port';
-import type { ScoredChunk } from '@/shared/rag/domain/rag-types';
+import type { EmbeddedRagChunk } from '@/core/rag/domain/rag-types';
+import { isSufficientRetrieval } from '@/core/rag/domain/rag-types';
+import { FakeEmbeddingProvider } from '@/infra/rag/embedding/fake-embedding.provider';
+import { InMemoryVectorStore } from '@/infra/rag/vector-store/in-memory-vector.store';
+import type { SimilarityFilters, VectorStore } from '@/core/rag/ports/vector-store.port';
+import type { ScoredChunk } from '@/core/rag/domain/rag-types';
 import { RetrievalService } from './retrieval.service';
 
 const embedding = new FakeEmbeddingProvider();

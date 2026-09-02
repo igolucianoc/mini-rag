@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { isSufficientRetrieval } from '@/shared/rag/domain/rag-types';
+import { isSufficientRetrieval } from '@/core/rag/domain/rag-types';
 import { RetrievalService } from './retrieval.service';
-import { buildContext } from './context-builder';
-import { buildRagPrompt } from './rag-prompt';
+import { buildContext } from '../domain/context-builder';
+import { buildRagPrompt } from '../domain/rag-prompt';
 import {
   RagAnswerService,
   type AskInput,

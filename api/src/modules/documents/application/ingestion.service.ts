@@ -1,15 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { DocumentSourceType, Prisma } from '@prisma/client';
 import { PrismaService } from '@/infra/prisma/prisma.service';
-import { EMBEDDING_PROVIDER } from '@/shared/rag/ports/embedding-provider.port';
-import type { EmbeddingProvider } from '@/shared/rag/ports/embedding-provider.port';
-import { VECTOR_STORE } from '@/shared/rag/ports/vector-store.port';
-import type { VectorStore } from '@/shared/rag/ports/vector-store.port';
-import type { SupportedMimeType } from '@/shared/rag/ports/document-parser.port';
-import type { EmbeddedRagChunk } from '@/shared/rag/domain/rag-types';
-import { chunkText } from '@/shared/rag/chunking/chunk-text';
-import type { ChunkOptions } from '@/shared/rag/ports/chunker.port';
-import { ParserRegistry } from '../infrastructure/parsers/parser-registry';
+import { EMBEDDING_PROVIDER } from '@/core/rag/ports/embedding-provider.port';
+import type { EmbeddingProvider } from '@/core/rag/ports/embedding-provider.port';
+import { VECTOR_STORE } from '@/core/rag/ports/vector-store.port';
+import type { VectorStore } from '@/core/rag/ports/vector-store.port';
+import type { SupportedMimeType } from '@/core/rag/ports/document-parser.port';
+import type { EmbeddedRagChunk } from '@/core/rag/domain/rag-types';
+import { chunkText } from '@/core/rag/chunking/chunk-text';
+import type { ChunkOptions } from '@/core/rag/ports/chunker.port';
+import { ParserRegistry } from '../persistence/parsers/parser-registry';
 
 /** Opções default de chunking (ADR 0002): 1000 chars, overlap 200. */
 export const DEFAULT_CHUNK_OPTIONS: ChunkOptions = {

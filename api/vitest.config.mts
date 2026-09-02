@@ -11,7 +11,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'lcov'],
       include: ['src/**/*.ts'],
-      exclude: ['src/**/*.spec.ts', 'src/main.ts', 'src/**/*.module.ts'],
+      exclude: ['src/**/*.spec.ts', 'src/infra/main.ts', 'src/**/*.module.ts'],
     },
   },
 });

@@ -8,10 +8,10 @@ import {
 import { PrismaService } from '@/infra/prisma/prisma.service';
 import { PASSWORD_HASHER } from './password-hasher';
 import type { PasswordHasher } from './password-hasher';
-import { REFRESH_TOKEN_REPOSITORY } from './refresh-token.repository';
-import type { RefreshTokenRepository } from './refresh-token.repository';
+import { REFRESH_TOKEN_REPOSITORY } from '../domain/refresh-token.repository';
+import type { RefreshTokenRepository } from '../domain/refresh-token.repository';
 import { TokenService } from './token.service';
-import type { LoginInput, RegisterInput } from '../schemas/auth.schema';
+import type { LoginInput, RegisterInput } from '../presentation/schemas/auth.schema';
 
 /** Metadados opcionais da requisição, para auditoria da sessão. */
 export interface SessionContext {

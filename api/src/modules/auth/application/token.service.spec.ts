@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createTokenService } from './test-helpers';
+import { createTokenService } from '../test/factories/auth-token.factory';
 
 describe('TokenService', () => {
   it('assina e verifica um access token, recuperando as claims', async () => {

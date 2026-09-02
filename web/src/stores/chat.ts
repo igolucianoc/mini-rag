@@ -5,9 +5,9 @@
  */
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import * as queriesApi from '@/api/queries';
-import { StreamTransportError } from '@/api/queries';
-import { ApiError } from '@/api/client';
+import * as queriesApi from '@/services/queries';
+import { StreamTransportError } from '@/services/queries';
+import { ApiError } from '@/services/client';
 import type {
   AskRequest,
   QueryDetail,

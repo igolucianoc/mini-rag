@@ -4,11 +4,11 @@ import type { RefreshToken, User } from '@prisma/client';
 import { PrismaService } from '@/infra/prisma/prisma.service';
 import { AuthService } from './auth.service';
 import { FakePasswordHasher } from './fake-password-hasher';
-import { createTokenService } from './test-helpers';
+import { createTokenService } from '../test/factories/auth-token.factory';
 import type {
   CreateRefreshTokenData,
   RefreshTokenRepository,
-} from './refresh-token.repository';
+} from '../domain/refresh-token.repository';
 import { TokenService } from './token.service';
 
 /** Repositório de refresh tokens em memória (substitui o Prisma nos testes). */

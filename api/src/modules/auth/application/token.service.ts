@@ -2,7 +2,7 @@ import { randomBytes, createHash } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import type { Env } from '@/config/env.schema';
+import type { Env } from '@/core/config/env.schema';
 
 /** Claims do access token. `sub` é o id do usuário (convenção JWT). */
 export interface AccessTokenClaims {

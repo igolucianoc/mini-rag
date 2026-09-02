@@ -17,4 +17,4 @@ if [ "${RUN_SEED:-false}" = "true" ]; then
 fi
 
 echo "[entrypoint] Iniciando API..."
-exec node dist/main.js
+exec node dist/infra/main.js

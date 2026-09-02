@@ -1,17 +1,17 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import type { Query } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
-import type { Env } from '@/config/env.schema';
+import type { Env } from '@/core/config/env.schema';
 import { PrismaService } from '@/infra/prisma/prisma.service';
-import type { EmbeddedRagChunk } from '@/shared/rag/domain/rag-types';
-import { isAnsweredRag } from '@/shared/rag/domain/rag-types';
-import type { LLMProvider } from '@/shared/rag/ports/llm-provider.port';
-import { FakeEmbeddingProvider } from '@/modules/documents/infrastructure/embedding/fake-embedding.provider';
-import { InMemoryVectorStore } from '@/modules/documents/infrastructure/vector-store/in-memory-vector.store';
+import type { EmbeddedRagChunk } from '@/core/rag/domain/rag-types';
+import { isAnsweredRag } from '@/core/rag/domain/rag-types';
+import type { LLMProvider } from '@/core/rag/ports/llm-provider.port';
+import { FakeEmbeddingProvider } from '@/infra/rag/embedding/fake-embedding.provider';
+import { InMemoryVectorStore } from '@/infra/rag/vector-store/in-memory-vector.store';
 import { RetrievalService } from './retrieval.service';
 import { RagAnswerService } from './rag-answer.service';
 import { RagService } from './rag.service';
-import { NO_EVIDENCE_MESSAGE } from './rag-prompt';
+import { NO_EVIDENCE_MESSAGE } from '../domain/rag-prompt';
 
 const embedding = new FakeEmbeddingProvider();
 

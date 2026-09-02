@@ -6,8 +6,8 @@
  */
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import * as authApi from '@/api/auth';
-import { ApiError, configureAuthBridge } from '@/api/client';
+import * as authApi from '@/services/auth';
+import { ApiError, configureAuthBridge } from '@/services/client';
 import type { AuthCredentials, AuthUser } from '@/types/api';
 
 export const useAuthStore = defineStore('auth', () => {

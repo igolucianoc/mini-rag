@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { Env } from '@/config/env.schema';
+import type { Env } from '@/core/config/env.schema';
 import { PrismaService } from '@/infra/prisma/prisma.service';
 import {
   LLM_PROVIDER,
   type LLMProvider,
-} from '@/shared/rag/ports/llm-provider.port';
-import type { Citation, RagAnswer } from '@/shared/rag/domain/rag-types';
-import type { NumberedSource } from './context-builder';
-import { NO_EVIDENCE_MESSAGE } from './rag-prompt';
-import { parseLlmOutput, type ParsedLlmOutput } from './llm-output.schema';
+} from '@/core/rag/ports/llm-provider.port';
+import type { Citation, RagAnswer } from '@/core/rag/domain/rag-types';
+import type { NumberedSource } from '../domain/context-builder';
+import { NO_EVIDENCE_MESSAGE } from '../domain/rag-prompt';
+import { parseLlmOutput, type ParsedLlmOutput } from '../domain/llm-output.schema';
 
 /** Entrada da pergunta RAG (compartilhada por ask síncrono e stream). */
 export interface AskInput {

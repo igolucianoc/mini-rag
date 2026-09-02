@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '@/modules/auth/auth.module';
-import { RagProvidersModule } from '@/shared/rag/rag-providers.module';
+import { RagProvidersModule } from '@/infra/rag/rag-providers.module';
 import { QueryController } from './presentation/query.controller';
 import { RetrievalService } from './application/retrieval.service';
 import { RagAnswerService } from './application/rag-answer.service';

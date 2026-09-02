@@ -20,8 +20,8 @@ import { Prisma, PrismaClient } from '@prisma/client';
 import {
   fakeDeterministicEmbedding,
   toPgVectorLiteral,
-} from '../src/shared/rag/embedding/deterministic-embedding';
-import { chunkText } from '../src/shared/rag/chunking/chunk-text';
+} from '../src/core/rag/embedding/deterministic-embedding';
+import { chunkText } from '../src/core/rag/chunking/chunk-text';
 
 const prisma = new PrismaClient();
 

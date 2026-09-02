@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import type { Document, IngestionRun } from '@prisma/client';
 import { PrismaService } from '@/infra/prisma/prisma.service';
-import { FakeEmbeddingProvider } from '../infrastructure/embedding/fake-embedding.provider';
-import { InMemoryVectorStore } from '../infrastructure/vector-store/in-memory-vector.store';
+import { FakeEmbeddingProvider } from '../../../infra/rag/embedding/fake-embedding.provider';
+import { InMemoryVectorStore } from '../../../infra/rag/vector-store/in-memory-vector.store';
 import {
   MarkdownParser,
-} from '../infrastructure/parsers/markdown.parser';
-import { TxtParser } from '../infrastructure/parsers/txt.parser';
-import { PdfParser } from '../infrastructure/parsers/pdf.parser';
-import { ParserRegistry } from '../infrastructure/parsers/parser-registry';
-import type { PdfTextExtractor } from '../infrastructure/parsers/pdf-text-extractor';
+} from '../persistence/parsers/markdown.parser';
+import { TxtParser } from '../persistence/parsers/txt.parser';
+import { PdfParser } from '../persistence/parsers/pdf.parser';
+import { ParserRegistry } from '../persistence/parsers/parser-registry';
+import type { PdfTextExtractor } from '../persistence/parsers/pdf-text-extractor';
 import { IngestionService } from './ingestion.service';
 
 /**

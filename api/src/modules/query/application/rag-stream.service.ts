@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { isSufficientRetrieval } from '@/shared/rag/domain/rag-types';
+import { isSufficientRetrieval } from '@/core/rag/domain/rag-types';
 import { RetrievalService } from './retrieval.service';
-import { buildContext, type NumberedSource } from './context-builder';
-import { buildRagPrompt, NO_EVIDENCE_MESSAGE } from './rag-prompt';
+import { buildContext, type NumberedSource } from '../domain/context-builder';
+import { buildRagPrompt, NO_EVIDENCE_MESSAGE } from '../domain/rag-prompt';
 import { RagAnswerService, type AskInput } from './rag-answer.service';
 import type {
   RagStreamCitation,
   RagStreamContextSource,
   RagStreamEvent,
-} from './rag-stream.events';
+} from '../domain/rag-stream.events';
 
 /**
  * Orquestra a resposta RAG em STREAMING (Etapa 07), como um async generator de

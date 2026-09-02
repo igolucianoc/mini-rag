@@ -7,9 +7,9 @@ import {
   Argon2PasswordHasher,
   PASSWORD_HASHER,
 } from './application/password-hasher';
-import { REFRESH_TOKEN_REPOSITORY } from './application/refresh-token.repository';
-import { PrismaRefreshTokenRepository } from './infrastructure/prisma-refresh-token.repository';
-import { JwtAccessGuard } from './guards/jwt-access.guard';
+import { REFRESH_TOKEN_REPOSITORY } from './domain/refresh-token.repository';
+import { PrismaRefreshTokenRepository } from './persistence/prisma-refresh-token.repository';
+import { JwtAccessGuard } from './presentation/guards/jwt-access.guard';
 
 /**
  * Slice de autenticação (Etapa 04). JwtModule é registrado sem secret global —
