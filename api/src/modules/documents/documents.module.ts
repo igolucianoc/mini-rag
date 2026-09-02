@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
-import { EMBEDDING_PROVIDER } from '@/shared/rag/ports/embedding-provider.port';
-import { VECTOR_STORE } from '@/shared/rag/ports/vector-store.port';
 import { AuthModule } from '@/modules/auth/auth.module';
+import { RagProvidersModule } from '@/shared/rag/rag-providers.module';
 import { DocumentsController } from './presentation/documents.controller';
 import { IngestionService } from './application/ingestion.service';
 import { DocumentsService } from './application/documents.service';
@@ -12,22 +11,20 @@ import {
 import { MarkdownParser } from './infrastructure/parsers/markdown.parser';
 import { TxtParser } from './infrastructure/parsers/txt.parser';
 import { PdfParser } from './infrastructure/parsers/pdf.parser';
-import { FakeEmbeddingProvider } from './infrastructure/embedding/fake-embedding.provider';
-import { PgVectorStore } from './infrastructure/vector-store/pg-vector.store';
 
 /**
  * Slice de documentos (Etapa 05 — ingestão).
  *
- * Injeção por token:
- *  - EMBEDDING_PROVIDER -> FakeEmbeddingProvider (a Etapa 06 pluga o HF real);
- *  - VECTOR_STORE -> PgVectorStore (pgvector via SQL bruto);
- *  - DOCUMENT_PARSERS -> [Markdown, Txt, Pdf], consumidos pelo ParserRegistry.
+ * EMBEDDING_PROVIDER e VECTOR_STORE agora vêm do RagProvidersModule (global),
+ * compartilhado com o slice de query — assim ingestão e busca usam exatamente o
+ * mesmo provider de embedding e o mesmo vector store. Aqui ficam apenas os
+ * parsers, específicos deste slice.
  *
  * AuthModule é importado para reaproveitar JwtAccessGuard/TokenService que
  * protegem as rotas.
  */
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, RagProvidersModule],
   controllers: [DocumentsController],
   providers: [
     IngestionService,
@@ -45,8 +42,6 @@ import { PgVectorStore } from './infrastructure/vector-store/pg-vector.store';
       ) => [markdown, txt, pdf],
       inject: [MarkdownParser, TxtParser, PdfParser],
     },
-    { provide: EMBEDDING_PROVIDER, useClass: FakeEmbeddingProvider },
-    { provide: VECTOR_STORE, useClass: PgVectorStore },
   ],
 })
 export class DocumentsModule {}
