@@ -29,6 +29,13 @@ describe('normalizeText', () => {
     expect(normalizeText('   \n\n  ')).toBe('');
     expect(normalizeText('  hello  ')).toBe('hello');
   });
+
+  it('remove NUL e caracteres de controle preservando tab e newline', () => {
+    // \u0000 (NUL) e \u0007 (BEL) devem sumir; \t vira espaço; \n é preservado.
+    expect(normalizeText('a\u0000b\u0007c')).toBe('abc');
+    expect(normalizeText('linha1\u0000\nlinha2')).toBe('linha1\nlinha2');
+    expect(normalizeText('a\tb')).toBe('a b');
+  });
 });
 
 describe('TxtParser', () => {

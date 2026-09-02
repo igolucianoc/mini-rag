@@ -10,7 +10,7 @@ function config(): ConfigService<Env, true> {
   return {
     get: (key: string): string => {
       if (key === 'HF_TOKEN') return SECRET_TOKEN;
-      if (key === 'HF_MODEL') return 'HuggingFaceH4/zephyr-7b-beta';
+      if (key === 'HF_MODEL') return 'meta-llama/Llama-3.1-8B-Instruct';
       return '';
     },
   } as unknown as ConfigService<Env, true>;
@@ -21,8 +21,8 @@ function fakeFetch(response: Response): FetchFn {
 }
 
 describe('HuggingFaceLLMProvider', () => {
-  it('extrai generated_text de resposta válida [{ generated_text }]', async () => {
-    const body = [{ generated_text: 'olá mundo' }];
+  it('extrai o conteúdo de resposta chat-completions válida', async () => {
+    const body = { choices: [{ message: { role: 'assistant', content: 'olá mundo' } }] };
     const provider = new HuggingFaceLLMProvider(
       config(),
       fakeFetch(new Response(JSON.stringify(body), { status: 200 })),
@@ -48,17 +48,19 @@ describe('HuggingFaceLLMProvider', () => {
     }
   });
 
-  it('resposta malformada (sem generated_text) vira erro claro', async () => {
+  it('resposta malformada (sem choices/message/content) vira erro claro', async () => {
     const provider = new HuggingFaceLLMProvider(
       config(),
-      fakeFetch(new Response(JSON.stringify([{ foo: 'bar' }]), { status: 200 })),
+      fakeFetch(new Response(JSON.stringify({ foo: 'bar' }), { status: 200 })),
     );
 
     await expect(provider.generate('p')).rejects.toThrow(/malformada/);
   });
 
   it('generateStream emite a resposta completa em fragmentos', async () => {
-    const body = [{ generated_text: 'abcdefghijklmnopqrstuvwxyz0123456789' }];
+    const body = {
+      choices: [{ message: { content: 'abcdefghijklmnopqrstuvwxyz0123456789' } }],
+    };
     const provider = new HuggingFaceLLMProvider(
       config(),
       fakeFetch(new Response(JSON.stringify(body), { status: 200 })),

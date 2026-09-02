@@ -28,5 +28,5 @@ export const ACCEPTED_MIME_TYPES = [
   'application/pdf',
 ] as const;
 
-/** Tamanho máximo do upload: 10 MB. */
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+/** Tamanho máximo do upload: 20 MB. */
+export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024;

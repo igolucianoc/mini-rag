@@ -126,6 +126,24 @@ async function seedEmbeddingForChunk(
 }
 
 async function main(): Promise<void> {
+  // GUARDA ANTI-PERDA: o seed é destrutivo (reseta as tabelas de domínio). Se o
+  // banco já tiver dados, aborta SEM apagar nada — a menos que SEED_FORCE=true
+  // seja passado explicitamente para repopular um banco de demo.
+  const force = process.env.SEED_FORCE === 'true';
+  const [userCount, documentCount] = await Promise.all([
+    prisma.user.count(),
+    prisma.document.count(),
+  ]);
+
+  if (!force && (userCount > 0 || documentCount > 0)) {
+    // eslint-disable-next-line no-console
+    console.log(
+      `seed pulado: banco já contém dados (${userCount} usuário(s), ${documentCount} documento(s)). ` +
+        'Use SEED_FORCE=true para resetar e reinserir o seed determinístico.',
+    );
+    return;
+  }
+
   await resetDomainData();
 
   const passwordHash = await argon2.hash(DEMO_PASSWORD, { type: argon2.argon2id });

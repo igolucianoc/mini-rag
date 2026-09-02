@@ -24,8 +24,10 @@ services:
     env_file:
       - .env
     environment:
-      # Aplica o seed determinístico na primeira subida (idempotente).
-      RUN_SEED: ${RUN_SEED:-true}
+      # Seed é DESTRUTIVO (reseta as tabelas de domínio antes de reinserir), então
+      # NÃO roda por padrão — assim as subidas preservam os dados existentes.
+      # Para popular um banco novo/demo, suba com: RUN_SEED=true docker compose up
+      RUN_SEED: ${RUN_SEED:-false}
     depends_on:
       db:
         condition: service_healthy

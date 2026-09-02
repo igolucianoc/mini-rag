@@ -11,8 +11,28 @@
 /** Assinatura de fetch injetável (default: global). Permite mock em teste. */
 export type FetchFn = typeof fetch;
 
-/** Base da Inference API da Hugging Face. */
-export const HF_INFERENCE_BASE_URL = 'https://api-inference.huggingface.co';
+/**
+ * Base do roteador de Inference Providers da Hugging Face.
+ *
+ * A antiga `api-inference.huggingface.co` foi descontinuada (responde 410 e
+ * redireciona para cá). O router unifica o acesso aos providers serverless com
+ * um único HF_TOKEN. Duas superfícies são usadas por este projeto:
+ *  - `/hf-inference/models/<model>/pipeline/<task>` para tarefas clássicas
+ *    (ex.: feature-extraction/embeddings), servidas pelo provider hf-inference;
+ *  - `/v1/chat/completions` (OpenAI-compatible) para chat/text-generation.
+ */
+export const HF_ROUTER_BASE_URL = 'https://router.huggingface.co';
+
+/**
+ * Monta a URL de uma tarefa de pipeline clássica no provider hf-inference.
+ * Ex.: feature-extraction -> `/hf-inference/models/<model>/pipeline/feature-extraction`.
+ */
+export function hfInferencePipelineUrl(model: string, task: string): string {
+  return `${HF_ROUTER_BASE_URL}/hf-inference/models/${model}/pipeline/${task}`;
+}
+
+/** URL do endpoint chat-completions (OpenAI-compatible) do router. */
+export const HF_CHAT_COMPLETIONS_URL = `${HF_ROUTER_BASE_URL}/v1/chat/completions`;
 
 /**
  * Erro de integração com a HF. NÃO carrega o token; apenas status e um trecho

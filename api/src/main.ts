@@ -7,7 +7,7 @@ import { AppModule } from './app.module';
 import type { Env } from './config/env.schema';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { bufferLogs: false });
+  const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService<Env, true>);
 
   app.setGlobalPrefix('api');

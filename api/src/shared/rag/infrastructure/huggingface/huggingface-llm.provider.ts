@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import type { Env } from '@/config/env.schema';
 import type { LLMProvider } from '@/shared/rag/ports/llm-provider.port';
 import {
-  HF_INFERENCE_BASE_URL,
+  HF_CHAT_COMPLETIONS_URL,
   HuggingFaceError,
   hfPostJson,
   type FetchFn,
@@ -15,18 +15,22 @@ const MAX_NEW_TOKENS = 512;
 const STREAM_CHUNK_SIZE = 24;
 
 /**
- * LLMProvider real via Hugging Face Inference API (text-generation do HF_MODEL).
+ * LLMProvider real via router de Inference Providers da Hugging Face, usando o
+ * endpoint chat-completions (OpenAI-compatible) do HF_MODEL.
  *
  * - Sem SDK: `fetch` nativo injetável (default global) para permitir mock.
  * - Config (HF_TOKEN/HF_MODEL) via ConfigService; token nunca logado.
  * - Resposta validada a partir de `unknown` antes de uso.
  *
- * DECISÃO sobre `generateStream`: o streaming real (SSE) do NOSSO endpoint é a
- * Etapa 07. Aqui `generateStream` é um WRAPPER sobre `generate`: pega a resposta
- * completa e a emite em pedaços. Isso mantém o contrato da porta satisfeito sem
- * o risco de parsear o stream SSE bruto da HF nesta etapa. Quando a Etapa 07
- * precisar de streaming token-a-token de verdade, este método pode passar a
- * consumir `stream: true` da HF sem mudar a porta.
+ * DECISÃO sobre o endpoint: a antiga Inference API (text-generation por
+ * pipeline) foi descontinuada em favor do router. Modelos de chat atuais são
+ * servidos pela superfície OpenAI-compatible `/v1/chat/completions`, que retorna
+ * `{ choices: [{ message: { content } }] }`. O prompt de RAG (já montado a
+ * montante) é enviado como uma única mensagem `user`.
+ *
+ * DECISÃO sobre `generateStream`: continua sendo um WRAPPER sobre `generate`
+ * (resposta completa emitida em pedaços), mantendo o contrato da porta sem
+ * parsear o stream SSE bruto. Streaming token-a-token real fica para depois.
  */
 @Injectable()
 export class HuggingFaceLLMProvider implements LLMProvider {
@@ -42,15 +46,16 @@ export class HuggingFaceLLMProvider implements LLMProvider {
   }
 
   async generate(prompt: string): Promise<string> {
-    const url = `${HF_INFERENCE_BASE_URL}/models/${this.model}`;
-    const payload = await hfPostJson(this.fetchFn, url, this.token, {
-      inputs: prompt,
-      parameters: {
-        max_new_tokens: MAX_NEW_TOKENS,
-        return_full_text: false,
+    const payload = await hfPostJson(
+      this.fetchFn,
+      HF_CHAT_COMPLETIONS_URL,
+      this.token,
+      {
+        model: this.model,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: MAX_NEW_TOKENS,
       },
-      options: { wait_for_model: true },
-    });
+    );
 
     return extractGeneratedText(payload);
   }
@@ -64,33 +69,41 @@ export class HuggingFaceLLMProvider implements LLMProvider {
 }
 
 /**
- * Valida a resposta da text-generation e extrai o texto gerado.
- * A API retorna `[{ generated_text: string }]`. Algumas variantes retornam o
- * objeto direto `{ generated_text: string }`. Qualquer outra forma é malformada.
+ * Valida a resposta chat-completions e extrai o texto gerado.
+ * A API retorna `{ choices: [{ message: { content: string } }] }`. Qualquer
+ * outra forma é considerada malformada e vira erro claro.
  */
 function extractGeneratedText(payload: unknown): string {
-  if (Array.isArray(payload)) {
-    const first: unknown = payload[0];
-    if (hasGeneratedText(first)) {
-      return first.generated_text;
-    }
-  } else if (hasGeneratedText(payload)) {
-    return payload.generated_text;
+  if (hasChatContent(payload)) {
+    return payload.choices[0].message.content;
   }
 
   throw new HuggingFaceError(
-    'Resposta de geração malformada: campo "generated_text" ausente',
+    'Resposta de geração malformada: campo "choices[0].message.content" ausente',
   );
 }
 
-/** Type guard: valor possui `generated_text: string`. */
-function hasGeneratedText(
+/** Type guard: valor tem o formato `{ choices: [{ message: { content: string } }] }`. */
+function hasChatContent(
   value: unknown,
-): value is { generated_text: string } {
+): value is { choices: [{ message: { content: string } }] } {
+  if (typeof value !== 'object' || value === null || !('choices' in value)) {
+    return false;
+  }
+
+  const { choices } = value;
+  if (!Array.isArray(choices) || choices.length === 0) {
+    return false;
+  }
+
+  const first: unknown = choices[0];
   return (
-    typeof value === 'object' &&
-    value !== null &&
-    'generated_text' in value &&
-    typeof value.generated_text === 'string'
+    typeof first === 'object' &&
+    first !== null &&
+    'message' in first &&
+    typeof first.message === 'object' &&
+    first.message !== null &&
+    'content' in first.message &&
+    typeof first.message.content === 'string'
   );
 }

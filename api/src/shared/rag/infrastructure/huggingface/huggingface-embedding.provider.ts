@@ -4,7 +4,7 @@ import type { Env } from '@/config/env.schema';
 import type { EmbeddingProvider } from '@/shared/rag/ports/embedding-provider.port';
 import { FAKE_EMBEDDING_DIMENSIONS } from '@/shared/rag/embedding/deterministic-embedding';
 import {
-  HF_INFERENCE_BASE_URL,
+  hfInferencePipelineUrl,
   HuggingFaceError,
   hfPostJson,
   type FetchFn,
@@ -17,8 +17,8 @@ import {
 const HF_EMBEDDING_DIMENSIONS = FAKE_EMBEDDING_DIMENSIONS; // 384
 
 /**
- * EmbeddingProvider real via Hugging Face Inference API (pipeline
- * feature-extraction do HF_EMBEDDING_MODEL).
+ * EmbeddingProvider real via router de Inference Providers da Hugging Face
+ * (pipeline feature-extraction do HF_EMBEDDING_MODEL no provider hf-inference).
  *
  * - Sem SDK: usa `fetch` nativo, injetável no construtor para permitir mock em
  *   teste (default: `fetch` global do Node 22).
@@ -48,7 +48,7 @@ export class HuggingFaceEmbeddingProvider implements EmbeddingProvider {
       return [];
     }
 
-    const url = `${HF_INFERENCE_BASE_URL}/models/${this.model}`;
+    const url = hfInferencePipelineUrl(this.model, 'feature-extraction');
     const payload = await hfPostJson(this.fetchFn, url, this.token, {
       inputs: texts,
       options: { wait_for_model: true },
