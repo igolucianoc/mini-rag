@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
@@ -18,7 +18,9 @@ async function bootstrap(): Promise<void> {
     origin: config.get('WEB_ORIGIN', { infer: true }),
     credentials: true,
   });
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  // A validação de entrada é feita por ZodValidationPipe nos controllers (o
+  // projeto usa Zod, não class-validator), então não registramos o
+  // ValidationPipe global do Nest — que exigiria class-validator/transformer.
   app.enableShutdownHooks();
 
   const port = config.get('PORT', { infer: true });

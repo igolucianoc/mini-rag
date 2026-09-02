@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import type {
   DocumentParser,
   ParsedDocument,
@@ -21,9 +21,16 @@ const PDF_MIME: SupportedMimeType = 'application/pdf';
  */
 @Injectable()
 export class PdfParser implements DocumentParser {
-  constructor(
-    private readonly extractText: PdfTextExtractor = defaultPdfTextExtractor,
-  ) {}
+  /**
+   * Extrator de texto do PDF. Não é uma dependência do DI (o tipo é uma função,
+   * que o Nest não sabe resolver); usa o `pdf-parse` por padrão e pode ser
+   * sobrescrito nos testes via o parâmetro opcional do construtor.
+   */
+  private readonly extractText: PdfTextExtractor;
+
+  constructor(@Optional() extractText?: PdfTextExtractor) {
+    this.extractText = extractText ?? defaultPdfTextExtractor;
+  }
 
   supports(mimeType: string): mimeType is SupportedMimeType {
     return mimeType === PDF_MIME;

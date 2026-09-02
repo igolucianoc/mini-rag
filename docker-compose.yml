@@ -23,6 +23,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      # Aplica o seed determinístico na primeira subida (idempotente).
+      RUN_SEED: ${RUN_SEED:-true}
     depends_on:
       db:
         condition: service_healthy
@@ -34,8 +37,12 @@ services:
       context: ./web
       dockerfile: Dockerfile
     restart: unless-stopped
+    environment:
+      # O preview do Vite faz proxy de /api para o service api dentro da rede.
+      API_PROXY_TARGET: http://api:3000
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     ports:
       - '5173:5173'
 
