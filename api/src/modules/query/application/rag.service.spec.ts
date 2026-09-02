@@ -9,6 +9,7 @@ import type { LLMProvider } from '@/shared/rag/ports/llm-provider.port';
 import { FakeEmbeddingProvider } from '@/modules/documents/infrastructure/embedding/fake-embedding.provider';
 import { InMemoryVectorStore } from '@/modules/documents/infrastructure/vector-store/in-memory-vector.store';
 import { RetrievalService } from './retrieval.service';
+import { RagAnswerService } from './rag-answer.service';
 import { RagService } from './rag.service';
 import { NO_EVIDENCE_MESSAGE } from './rag-prompt';
 
@@ -126,7 +127,12 @@ async function embeddedChunk(
 
 function buildRag(prisma: FakePrisma, vectorStore: InMemoryVectorStore, llm: LLMProvider): RagService {
   const retrieval = new RetrievalService(embedding, vectorStore);
-  return new RagService(prisma.asPrismaService(), retrieval, llm, fakeConfig());
+  const answerService = new RagAnswerService(
+    prisma.asPrismaService(),
+    llm,
+    fakeConfig(),
+  );
+  return new RagService(retrieval, answerService);
 }
 
 describe('RagService', () => {
