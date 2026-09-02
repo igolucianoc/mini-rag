@@ -1,0 +1,27 @@
+// Schema Prisma do Mini RAG.
+// Etapa 02 (bootstrap): apenas datasource + generator + habilitação do
+// pgvector. A modelagem de domínio (documentos, chunks, embeddings, usuários)
+// é da Etapa 03 e será adicionada aqui posteriormente.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+// Model técnico mínimo. `prisma generate` exige ao menos um model para emitir
+// um client tipado; sem ele o build falha com "The schema does not contain any
+// models". Este model não representa domínio — serve só para o bootstrap ter um
+// client válido e será mantido/removido conforme a modelagem da Etapa 03.
+model AppMetadata {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+
+  @@map("app_metadata")
+}
